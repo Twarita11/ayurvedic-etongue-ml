@@ -1,0 +1,36 @@
+services:
+  # API Service
+  - type: web
+    name: etongue-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    envVars:
+      - key: DATABASE_URL
+        fromDatabase:
+          name: etongue-db
+          property: connectionString
+      - key: MODEL_STORAGE_TYPE
+        value: s3
+      - key: AWS_ACCESS_KEY
+        sync: false
+      - key: AWS_SECRET_KEY
+        sync: false
+      - key: S3_BUCKET
+        value: etongue-models
+
+  # Frontend Service
+  - type: web
+    name: etongue-frontend
+    env: node
+    buildCommand: cd frontend && npm install && npm run build
+    startCommand: cd frontend && npm run preview
+    envVars:
+      - key: VITE_API_URL
+        value: https://etongue-api.onrender.com
+
+databases:
+  - name: etongue-db
+    databaseName: etongue
+    user: etongue
+    plan: free

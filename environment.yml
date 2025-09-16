@@ -1,0 +1,21 @@
+name: ayurvedic-etongue
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.11
+  - pip
+  - numpy
+  - pandas
+  - scikit-learn
+  - tensorflow
+  - plotly
+  - fastapi
+  - uvicorn
+  - jupyter
+  - ipykernel
+  - pip:
+    - python-dotenv
+    - supabase
+    - python-telegram-bot
+    - python-multipart
