@@ -4,11 +4,19 @@ from fastapi.responses import JSONResponse
 import numpy as np
 import joblib
 import os
+import logging
 from datetime import datetime
 from typing import List, Dict
 
+# Configure logging
+logging.basicConfig(
+    level=logging.DEBUG,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
+
 from .config import settings
-from .models import SensorReading, PredictionResult, HistoricalData
+from .models import SensorReading, PredictionResult, HistoricalData, TasteProfile
 
 app = FastAPI(
     title=settings.app_name,
@@ -27,15 +35,30 @@ app.add_middleware(
 
 # Load models
 try:
+    logger.info("Loading models...")
     model_dir = settings.model_dir
+    logger.debug(f"Model directory: {model_dir}")
+    
+    # Core models
     dilution_model = joblib.load(os.path.join(model_dir, "dilution_model.pkl"))
     medicine_model = joblib.load(os.path.join(model_dir, "medicine_model.pkl"))
     effectiveness_model = joblib.load(os.path.join(model_dir, "effectiveness_model.pkl"))
+    logger.info("Core models loaded successfully")
+    
+    # Taste profile models
+    taste_models = {}
+    for taste in ["sweet", "sour", "salty", "bitter", "pungent", "astringent"]:
+        model_path = os.path.join(model_dir, f"taste_{taste}_model.pkl")
+        logger.debug(f"Loading model from {model_path}")
+        taste_models[taste] = joblib.load(model_path)
+    logger.info("Taste profile models loaded successfully")
+    
 except Exception as e:
-    print(f"Error loading models: {str(e)}")
+    logger.error(f"Error loading models: {str(e)}", exc_info=True)
     dilution_model = None
     medicine_model = None
     effectiveness_model = None
+    taste_models = {}
 
 # In-memory storage for historical data
 historical_data = []
@@ -43,11 +66,15 @@ historical_data = []
 @app.get("/")
 async def root():
     """Root endpoint to check API status."""
-    models_loaded = all([dilution_model, medicine_model, effectiveness_model])
+    core_models_loaded = all([dilution_model, medicine_model, effectiveness_model])
+    taste_models_loaded = all(model is not None for model in taste_models.values())
     return {
         "status": "online",
         "version": settings.version,
-        "models_loaded": models_loaded,
+        "models_loaded": {
+            "core_models": core_models_loaded,
+            "taste_models": taste_models_loaded
+        },
         "docs_url": "/docs"
     }
 
@@ -87,15 +114,27 @@ async def predict(reading: SensorReading, background_tasks: BackgroundTasks):
         dilution_conf = 1 - np.std([tree.predict(X) for tree in dilution_model.estimators_], axis=0)[0]
         effectiveness_conf = 1 - np.std([tree.predict(X) for tree in effectiveness_model.estimators_], axis=0)[0]
         
+        # Predict taste profiles
+        taste_predictions = {}
+        taste_confidences = {}
+        
+        for taste, model in taste_models.items():
+            pred = model.predict(X)[0]
+            conf = 1 - np.std([tree.predict(X) for tree in model.estimators_], axis=0)[0]
+            taste_predictions[taste] = float(pred)
+            taste_confidences[taste] = float(conf)
+        
         # Create prediction result
         result = PredictionResult(
             dilution=float(dilution_pred),
             medicine=medicine_pred,
             effectiveness=float(effectiveness_pred),
+            taste_profile=TasteProfile(**taste_predictions),
             confidence={
                 "dilution": float(dilution_conf),
                 "medicine": float(medicine_conf),
-                "effectiveness": float(effectiveness_conf)
+                "effectiveness": float(effectiveness_conf),
+                "taste_profile": float(np.mean(list(taste_confidences.values())))
             }
         )
         
@@ -129,6 +168,13 @@ async def get_history():
         "effectiveness": {
             "mean": np.mean([p.effectiveness for p in predictions]),
             "std": np.std([p.effectiveness for p in predictions]),
+        },
+        "taste_profile": {
+            taste: {
+                "mean": np.mean([getattr(p.taste_profile, taste) for p in predictions]),
+                "std": np.std([getattr(p.taste_profile, taste) for p in predictions])
+            }
+            for taste in ["sweet", "sour", "salty", "bitter", "pungent", "astringent"]
         }
     }
     
