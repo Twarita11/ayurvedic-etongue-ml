@@ -65,6 +65,48 @@ class Visualizer:
         
         return fig
     
+    def plot_ftir_like(self,
+                       df: pd.DataFrame,
+                       group_col: Optional[str] = None,
+                       sensor_columns_override: Optional[List[str]] = None) -> go.Figure:
+        """Produce an FTIR-like plot by treating sensor channels as pseudo-wavenumbers.
+
+        Args:
+            df: DataFrame with columns for channels (default R..W)
+            group_col: Optional column to group/average by (e.g., 'Medicine_Name')
+            sensor_columns_override: Optional explicit list of channel columns
+
+        Returns:
+            Plotly figure of line profiles across channels.
+        """
+        channels = sensor_columns_override or self.sensor_columns
+        x_axis = list(range(len(channels)))
+
+        fig = go.Figure()
+
+        if group_col and group_col in df.columns:
+            for grp, grp_df in df.groupby(group_col):
+                y = grp_df[channels].mean().values
+                fig.add_trace(go.Scatter(x=x_axis, y=y, mode='lines+markers', name=str(grp)))
+        else:
+            # Plot overall mean profile
+            y = df[channels].mean().values
+            fig.add_trace(go.Scatter(x=x_axis, y=y, mode='lines+markers', name='Mean Profile'))
+
+        fig.update_layout(
+            title='FTIR-like Channel Profile',
+            xaxis_title='Pseudo Wavenumber Index (R..W)',
+            yaxis_title='Normalized Intensity',
+        )
+
+        fig.update_xaxes(
+            tickmode='array',
+            tickvals=x_axis,
+            ticktext=channels,
+        )
+
+        return fig
+    
     def plot_dilution_curves(self, df: pd.DataFrame) -> go.Figure:
         """Plot sensor response vs dilution levels.
         
