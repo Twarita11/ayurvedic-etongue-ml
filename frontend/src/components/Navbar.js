@@ -16,7 +16,7 @@ export default function Navbar() {
     <nav className=" top-0 left-0 w-full z-50 bg-gradient-to-r from-green-600 to-green-700 text-white shadow-lg">
       <div className="max-w-7xl mx-auto px-6 py-5 flex items-center justify-between">
         <h1 className="text-2xl font-semibold tracking-wide select-none">
-          Herbal AI Analyzer
+          E-Tongue Analyzer
         </h1>
 
         <div className="hidden md:flex space-x-10 text-md font-medium">
