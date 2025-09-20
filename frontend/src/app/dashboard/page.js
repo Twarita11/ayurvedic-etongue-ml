@@ -232,7 +232,7 @@ import {
 } from "recharts";
 import html2canvas from "html2canvas";
 import { jsPDF } from "jspdf";
-
+import TelegramSubscribe from "@/components/TelegramSubscribe";
 const DUMMY_DATA = [
   {
     timestamp: "15:19:05",
@@ -630,7 +630,24 @@ export default function Dashboard() {
             </button>
           </section>
         )}
+
+
+
+        
+      </div>
+      <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+        <TelegramSubscribe />
       </div>
     </div>
+    
   );
 }
+
+
+
+
+
+
+
+
+

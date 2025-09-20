@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
+import TelegramSubscribe from "@/components/TelegramSubscribe";
 
 export default function AnalysisPage() {
   const [factoryName, setFactoryName] = useState("");
@@ -606,6 +607,9 @@ export default function AnalysisPage() {
             </div>
           )}
         </section>
+      </div>
+      <div style={{ position: 'fixed', bottom: '20px', right: '20px', zIndex: 1000 }}>
+        <TelegramSubscribe />
       </div>
     </div>
   );
