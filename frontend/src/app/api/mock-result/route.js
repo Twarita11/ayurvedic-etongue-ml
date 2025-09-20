@@ -6,12 +6,12 @@ export async function GET() {
     status: "Authentic",
     confidence: 92,
     tasteProfile: [
-      { taste: "Sweet", value: 30 },
-      { taste: "Sour", value: 20 },
-      { taste: "Salty", value: 10 },
-      { taste: "Bitter", value: 60 },
-      { taste: "Pungent", value: 40 },
-      { taste: "Astringent", value: 50 },
+      { taste: "Sweet", value: 3 },
+      { taste: "Sour", value: 2 },
+      { taste: "Salty", value: 1 },
+      { taste: "Bitter", value: 3 },
+      { taste: "Pungent", value: 4 },
+      { taste: "Astringent", value: 5 },
     ],
     compounds: [
       { compound: "Quercetin", value: 45 },
