@@ -844,7 +844,9 @@ export default function Dashboard() {
       );
 
       if (res.ok) {
-        alert("Prediction process started. Waiting 10 seconds for results.");
+        alert(
+          "Prediction process started. Please wait a few seconds for results."
+        );
         setTimeout(async () => {
           const resultRes = await fetch(
             `https://photontroppers.onrender.com/predict/${factoryMedicineId}`
