@@ -24,7 +24,7 @@ export default function Navbar() {
             <Link
               key={label}
               href={href}
-              className="relative group py-1"
+              className="relative group py-1 cursor-pointer"
               onClick={() => setIsOpen(false)}
             >
               <span className="hover:text-green-200 transition-colors duration-300">
