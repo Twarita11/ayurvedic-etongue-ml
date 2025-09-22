@@ -1,12 +1,15 @@
 import type {NextConfig} from 'next';
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  // Generate a smaller, self-contained production bundle
+  output: 'standalone',
+  reactStrictMode: true,
+  // Enforce type and lint correctness in CI/production builds
   typescript: {
-    ignoreBuildErrors: true,
+    ignoreBuildErrors: false,
   },
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: false,
   },
   images: {
     remotePatterns: [

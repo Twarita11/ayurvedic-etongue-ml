@@ -47,7 +47,7 @@ const generateTasteGradeFlow = ai.defineFlow(
     inputSchema: GenerateTasteGradeInputSchema,
     outputSchema: GenerateTasteGradeOutputSchema,
   },
-  async input => {
+  async (input) => {
     const {output} = await prompt(input);
     return output!;
   }

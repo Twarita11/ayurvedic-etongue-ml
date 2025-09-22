@@ -42,8 +42,8 @@ export function RasaGraderClient({ initialGrade: initialGradeFromServer }: { ini
     // Set initial grade on client if not provided
     if (grade === null) {
       generateTasteGrade({ apiData: '{ "status": "initial" }' })
-        .then(result => setGrade(result.grade))
-        .catch(e => {
+        .then((result: { grade: 'A' | 'B' | 'C' | 'D' }) => setGrade(result.grade))
+        .catch((e: unknown) => {
           console.error("Failed to get initial grade, defaulting to 'D'", e);
           setGrade('D');
         });
@@ -60,10 +60,10 @@ export function RasaGraderClient({ initialGrade: initialGradeFromServer }: { ini
     }
   }, [rawData, grade]);
 
-  const handleDataFetched = useCallback((data: { grade: Grade; rasas: Rasa[]; rawData: string }) => {
-    setGrade(data.grade);
-    setRasas(data.rasas);
-    setRawData(data.rawData);
+  const handleDataFetched = useCallback((data: { grade?: Grade; rasas?: Rasa[]; rawData?: string }) => {
+    if (data.grade) setGrade(data.grade);
+    if (data.rasas) setRasas(data.rasas);
+    if (data.rawData) setRawData(data.rawData);
   }, []);
 
   return (

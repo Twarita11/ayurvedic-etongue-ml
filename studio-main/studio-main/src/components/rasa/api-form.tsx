@@ -11,7 +11,14 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { useToast } from "@/hooks/use-toast";
 import { ArrowRight } from 'lucide-react';
 
-const initialState = {
+type ActionState = {
+  message?: string;
+  grade?: 'A' | 'B' | 'C' | 'D';
+  rasas?: Array<{ name: string; dilution: number; quality: number }>;
+  rawData?: string;
+};
+
+const initialState: ActionState = {
   message: '',
 };
 
@@ -25,8 +32,8 @@ function SubmitButton() {
   );
 }
 
-export function ApiForm({ onDataFetched }: { onDataFetched: (data: any) => void }) {
-  const [state, formAction] = useActionState(getTasteData, initialState);
+export function ApiForm({ onDataFetched }: { onDataFetched: (data: ActionState) => void }) {
+  const [state, formAction] = useActionState<ActionState, FormData>(getTasteData, initialState);
   const { toast } = useToast();
   
   useEffect(() => {
